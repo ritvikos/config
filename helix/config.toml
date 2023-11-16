@@ -1,0 +1,28 @@
+[editor]
+line-number = "relative"
+scroll-lines = 2
+auto-pairs = true
+
+[editor.cursor-shape]
+insert = "underline"
+normal = "block"
+select = "block"
+
+[editor.lsp]
+display-messages = true
+
+[keys.normal]
+g = { a = "code_action" }
+D = "delete_char_backward"
+
+# Movement
+j = "move_char_left"
+";" = "move_char_right"
+k = "move_visual_line_up"
+l = "move_visual_line_down"
+
+[keys.insert]
+# Switch to normal mode
+j = { k = "normal_mode" }
+
+# vgld -> delete till the eol from current position
