@@ -4,6 +4,7 @@ theme = "catppuccin_mocha"
 line-number = "relative"
 scroll-lines = 2
 auto-pairs = true
+auto-format = true
 
 [editor.cursor-shape]
 insert = "underline"
@@ -12,6 +13,7 @@ select = "block"
 
 [editor.lsp]
 display-messages = true
+display-inlay-hints = true
 
 [keys.normal]
 g = { a = "code_action" }
@@ -26,5 +28,9 @@ l = "move_visual_line_down"
 [keys.insert]
 # Switch to normal mode
 j = { k = "normal_mode" }
+l = { l = "move_line_down" }
+
+[keys.normal.space]
+i = ":toggle lsp.display-inlay-hints"
 
 # vgld -> delete till the eol from current position
