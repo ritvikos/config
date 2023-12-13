@@ -1,0 +1,11 @@
+window:
+  padding:
+    x: 10
+    y: 10
+  opacity: 1
+
+key_bindings:
+  - { key: Return, mods: Shift, action: SpawnNewInstance }
+
+import:
+  - C:\Users\ritvi\AppData\Roaming\alacritty\theme.yml
