@@ -1,4 +1,4 @@
-theme = "catppuccin_mocha"
+theme = "base16_transparent"
 
 [editor]
 line-number = "relative"
@@ -29,6 +29,7 @@ l = "move_visual_line_down"
 # Switch to normal mode
 j = { k = "normal_mode" }
 l = { l = "move_line_down" }
+k = { k = "move_line_up" }
 
 [keys.normal.space]
 i = ":toggle lsp.display-inlay-hints"
