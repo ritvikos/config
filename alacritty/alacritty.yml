@@ -6,6 +6,8 @@ window:
 
 key_bindings:
   - { key: Return, mods: Shift, action: SpawnNewInstance }
+  - { key: LBracket,  mods: Alt, action: ScrollLineUp }
+  - { key: RBracket, mods: Alt, action: ScrollLineDown }
 
 import:
   - C:\Users\ritvi\AppData\Roaming\alacritty\theme.yml
