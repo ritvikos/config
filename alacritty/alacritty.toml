@@ -1,0 +1,23 @@
+import = ['C:\Users\ritvi\AppData\Roaming\alacritty\theme.toml']
+
+[[keyboard.bindings]]
+action = "SpawnNewInstance"
+key = "Return"
+mods = "Shift"
+
+[[keyboard.bindings]]
+action = "ScrollLineUp"
+key = "LBracket"
+mods = "Alt"
+
+[[keyboard.bindings]]
+action = "ScrollLineDown"
+key = "RBracket"
+mods = "Alt"
+
+[window]
+opacity = 1
+
+[window.padding]
+x = 10
+y = 10
