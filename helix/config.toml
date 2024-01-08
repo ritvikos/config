@@ -26,10 +26,13 @@ k = "move_visual_line_up"
 l = "move_visual_line_down"
 
 [keys.insert]
-# Switch to normal mode
 j = { k = "normal_mode" }
-l = { l = "move_line_down" }
-k = { k = "move_line_up" }
+
+[keys.select]
+j = "extend_char_left"
+";" = "extend_char_right"
+k = "extend_visual_line_up"
+l = "extend_visual_line_down"
 
 [keys.normal.space]
 i = ":toggle lsp.display-inlay-hints"
