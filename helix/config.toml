@@ -1,8 +1,8 @@
-theme = "base16_transparent"
+theme = "github_dark"
 
 [editor]
 line-number = "relative"
-scroll-lines = 2
+scroll-lines = 4
 auto-pairs = true
 auto-format = true
 
@@ -27,6 +27,7 @@ l = "move_visual_line_down"
 
 [keys.insert]
 j = { k = "normal_mode" }
+S-tab = "unindent"
 
 [keys.select]
 j = "extend_char_left"
@@ -36,5 +37,6 @@ l = "extend_visual_line_down"
 
 [keys.normal.space]
 i = ":toggle lsp.display-inlay-hints"
+W = [":toggle soft-wrap.enable", ":redraw"]
 
 # vgld -> delete till the eol from current position
