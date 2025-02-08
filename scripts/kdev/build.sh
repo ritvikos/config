@@ -66,7 +66,7 @@ build() {
         strip|stripped) base+="$mod INSTALL_MOD_STRIP=1" ;;
     esac
 
-    echo "Build kernel with: $base_cmd"
+    echo "Build kernel with: $base"
 
     if "$BUILD"; then
         eval "$base"
