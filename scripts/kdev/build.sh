@@ -58,19 +58,22 @@ run_menuconfig() {
 }
 
 build() {
-    local base="ccache make -s -j $(nproc) $ARCH"
+    local base="ccache make -s -j $(nproc) arch=$ARCH"
     local mod=" modules_install"
-
-    case "$MODULES" in
-        full) base+="$mod" ;;
-        strip|stripped) base+="$mod INSTALL_MOD_STRIP=1" ;;
-    esac
 
     echo "Build kernel with: $base"
 
     if "$BUILD"; then
         eval "$base"
     fi
+
+    case "$MODULES" in
+        full) base+="$mod" ;;
+        strip|stripped) base+="$mod INSTALL_MOD_STRIP=1" ;;
+    esac
+
+    # Build modules
+    eval "$base"
 }
 
 $LATEST && update
