@@ -3,6 +3,7 @@
 KERNEL="$HOME/linux"
 ARCH="$(uname -m)"
 MODULES="full"
+MOD_PATH=""
 
 BUILD=false
 LATEST=false
@@ -20,6 +21,7 @@ Options:
   -l <lazy>    Update to latest (depends on git)
   -m <lazy>    Run menuconfig
   -n <lazy>    Install modules
+  -p <path>    Modules installation path
   -k <path>    Kernel source directory (default: $KERNEL)
   -a <arch>    Target architecture (default: $ARCH)
   -M <type>    Modules install type: full or strip/stripped (default: $MODULES)
@@ -45,7 +47,7 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-while getopts "blmnk:a:M:h" opt; do
+while getopts "blmnk:a:M:p:h" opt; do
     case "$opt" in
         b) BUILD=true ;;
         l) LATEST=true ;;
@@ -54,6 +56,7 @@ while getopts "blmnk:a:M:h" opt; do
         k) KERNEL="$OPTARG" ;;
         a) ARCH="$OPTARG" ;;
         M) MODULES="$OPTARG" ;;
+        p) MOD_PATH="$OPTARG" ;;
         h) usage ;;
         *) usage ;;
     esac
@@ -86,15 +89,21 @@ build_kernel() {
 }
 
 build_modules() {
-    local mod=" modules_install"
+    local mod="modules_install"
 
     case "$MODULES" in
-        full) base+="$mod" ;;
-        strip|stripped) base+="$mod INSTALL_MOD_STRIP=1" ;;
+        full) ;;
+        strip|stripped) mod="$mod INSTALL_MOD_STRIP=1" ;;
     esac
 
-    echo "Build modules with: $base"
-    eval sudo "$base"
+    if [ -n "$MOD_PATH" ]; then
+        mod="$mod INSTALL_MOD_PATH=$MOD_PATH"
+    fi
+
+    local cmd_mod="$base $mod"
+
+    echo "Build modules with: $cmd_mod"
+    eval sudo $cmd_mod
 }
 
 $LATEST && update
