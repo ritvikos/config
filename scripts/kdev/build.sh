@@ -1,14 +1,20 @@
 #!/bin/bash
 
+# General Config
 KERNEL="$HOME/linux"
 ARCH="$(uname -m)"
+
+# Build Config
+BUILD=false
+LATEST=false
+MOD=false
+
+# Modules Config
 MODULES="full"
 MOD_PATH=""
 
-BUILD=false
-LATEST=false
+OLD=false
 MENU=false
-MOD=false
 
 base="ccache make -s -j $(nproc) arch=$ARCH"
 
@@ -20,6 +26,7 @@ Options:
   -b <lazy>    Builds the kernel
   -l <lazy>    Update to latest (depends on git)
   -m <lazy>    Run menuconfig
+  -o <lazy>    Use old config
   -n <lazy>    Install modules
   -p <path>    Modules installation path
   -k <path>    Kernel source directory (default: $KERNEL)
@@ -47,12 +54,13 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-while getopts "blmnk:a:M:p:h" opt; do
+while getopts "blmnok:a:M:p:h" opt; do
     case "$opt" in
         b) BUILD=true ;;
         l) LATEST=true ;;
         m) MENU=true ;;
         n) MOD=true ;;
+        o) OLD=true ;;
         k) KERNEL="$OPTARG" ;;
         a) ARCH="$OPTARG" ;;
         M) MODULES="$OPTARG" ;;
@@ -78,6 +86,11 @@ update() {
 run_menuconfig() {
         echo "Running menuconfig..."
         make menuconfig
+}
+
+run_oldconfig() {
+        echo "Applying oldconfig..."
+        make oldconfig
 }
 
 build_kernel() {
@@ -107,6 +120,7 @@ build_modules() {
 }
 
 $LATEST && update
+$OLD && run_oldconfig
 $MENU && run_menuconfig
 $BUILD && build_kernel
 $MOD && build_modules
