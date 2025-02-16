@@ -14,6 +14,7 @@ MODULES="full"
 MOD_PATH=""
 
 OLD=false
+OLDDEF=false
 MENU=false
 
 base="ccache make -s -j $(nproc) arch=$ARCH"
@@ -26,7 +27,8 @@ Options:
   -b <lazy>    Builds the kernel
   -l <lazy>    Update to latest (depends on git)
   -m <lazy>    Run menuconfig
-  -o <lazy>    Use old config
+  -o <lazy>    Use 'oldconfig'
+  -d <lazy>    Use 'olddefconfig'
   -n <lazy>    Install modules
   -p <path>    Modules installation path
   -k <path>    Kernel source directory (default: $KERNEL)
@@ -54,13 +56,14 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-while getopts "blmnok:a:M:p:h" opt; do
+while getopts "blmnodk:a:M:p:h" opt; do
     case "$opt" in
         b) BUILD=true ;;
         l) LATEST=true ;;
         m) MENU=true ;;
         n) MOD=true ;;
         o) OLD=true ;;
+        d) OLDDEF=true ;;
         k) KERNEL="$OPTARG" ;;
         a) ARCH="$OPTARG" ;;
         M) MODULES="$OPTARG" ;;
@@ -74,6 +77,12 @@ if [[ -z "$KERNEL" || -z "$ARCH" || -z "$MODULES" ]]; then
     echo "Error: Missing required arguments!"
     usage
 fi
+
+if [ "$OLD" = true ] && [ "$OLDDEF" = true ]; then
+    echo "Error: Both OLD and OLDDEF cannot be true."
+    exit 1
+fi
+
 
 cd "$KERNEL" || { echo "Error: Cannot access $KERNEL"; exit 1; }
 
@@ -91,6 +100,11 @@ run_menuconfig() {
 run_oldconfig() {
         echo "Applying oldconfig..."
         make oldconfig
+}
+
+run_olddefconfig() {
+        echo "Applying olddefconfig..."
+        make olddefconfig
 }
 
 build_kernel() {
@@ -121,6 +135,7 @@ build_modules() {
 
 $LATEST && update
 $OLD && run_oldconfig
+$OLDDEF && run_olddefconfig
 $MENU && run_menuconfig
 $BUILD && build_kernel
 $MOD && build_modules
