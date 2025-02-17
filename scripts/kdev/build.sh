@@ -8,6 +8,7 @@ ARCH="$(uname -m)"
 BUILD=false
 LATEST=false
 MOD=false
+OUT_PATH=""
 
 # Modules Config
 MODULES="full"
@@ -26,9 +27,12 @@ Usage: $0 [options]
 Options:
   -b <lazy>    Builds the kernel
   -l <lazy>    Update to latest (depends on git)
+  -o <path>    Build in specific directory
+
   -m <lazy>    Run menuconfig
-  -o <lazy>    Use 'oldconfig'
+  -x <lazy>    Use 'oldconfig'
   -d <lazy>    Use 'olddefconfig'
+
   -n <lazy>    Install modules
   -p <path>    Modules installation path
   -k <path>    Kernel source directory (default: $KERNEL)
@@ -56,18 +60,19 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-while getopts "blmnodk:a:M:p:h" opt; do
+while getopts "blmnxdk:a:M:p:o:h" opt; do
     case "$opt" in
         b) BUILD=true ;;
         l) LATEST=true ;;
         m) MENU=true ;;
         n) MOD=true ;;
-        o) OLD=true ;;
+        x) OLD=true ;;
         d) OLDDEF=true ;;
         k) KERNEL="$OPTARG" ;;
         a) ARCH="$OPTARG" ;;
         M) MODULES="$OPTARG" ;;
         p) MOD_PATH="$OPTARG" ;;
+        o) OUT_PATH="$OPTARG" ;;
         h) usage ;;
         *) usage ;;
     esac
@@ -82,7 +87,6 @@ if [ "$OLD" = true ] && [ "$OLDDEF" = true ]; then
     echo "Error: Both OLD and OLDDEF cannot be true."
     exit 1
 fi
-
 
 cd "$KERNEL" || { echo "Error: Cannot access $KERNEL"; exit 1; }
 
@@ -108,6 +112,11 @@ run_olddefconfig() {
 }
 
 build_kernel() {
+    echo "buildl"
+    if [ -n "$OUT_PATH" ]; then
+        base+=" O=$OUT_PATH"
+    fi
+
     echo "Build kernel with: $base"
 
     if "$BUILD"; then
