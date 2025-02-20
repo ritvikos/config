@@ -1,0 +1,26 @@
+dist: jammy
+git:
+  quiet: true
+branches:
+  only:
+    - ci-build
+language: c
+cache: ccache
+compiler:
+  - gcc
+before_install:
+  - sudo apt update
+  - sudo apt -y upgrade
+install:
+  - sudo apt-get install build-essential
+  - >-
+    sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu jammy main
+    restricted universe multiverse"
+  - >-
+    sudo apt-get -y install libncurses-dev gawk flex bison openssl
+    libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf
+    llvm
+script:
+  - make olddefconfig
+  - make -j$(nproc)
+  - ls
