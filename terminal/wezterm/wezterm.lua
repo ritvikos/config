@@ -9,7 +9,7 @@ config.font_size = 11.0
 config.window_background_opacity = 1.0
 config.hide_tab_bar_if_only_one_tab = true
 config.front_end = "WebGpu"
-config.default_cwd = "C:/Users/ritvi/Desktop"
+config.default_cwd = "$HOME"
 
 config.window_decorations = "TITLE | RESIZE"
 config.window_padding = {
@@ -22,12 +22,12 @@ config.window_padding = {
 local act = wezterm.action
 config.keys = {
     {
-        key = "v",
+        key = "h",
         mods = "CTRL|ALT",
         action = wezterm.action.SplitVertical {domain = "CurrentPaneDomain"}
     },
     {
-        key = "h",
+        key = "v",
         mods = "CTRL|ALT",
         action = wezterm.action.SplitHorizontal {domain = "CurrentPaneDomain"}
     },
@@ -50,7 +50,19 @@ config.keys = {
         key = "l",
         mods = "ALT",
         action = act.ActivatePaneDirection "Down"
-    }
+    },
+    {
+        key = 'c',
+        mods = 'CTRL|ALT',
+        action = act.PaneSelect
+    },
+    {
+        key = 's',
+        mods = 'CTRL|ALT',
+        action = act.PaneSelect {
+          mode = 'SwapWithActive',
+        },
+    },
 }
 
 return config
