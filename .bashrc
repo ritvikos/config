@@ -121,103 +121,122 @@ ubuild() {
     esac
 }
 
+# Kernel Development Workflow
 
-# Kernel Development Specific
-alias krgk='rg -g '!Documentation/' -g '!tools/''
-alias kgdbk='gdb -tui -ex '\''target remote :1234'\'' $CURRENT_BUILD/vmlinux'
-alias kdecode='"$KSOURCE"/scripts/decode_stacktrace.sh $CURRENT_BUILD/vmlinux "$KSOURCE" < '
-alias build_rust_doc='cd $CURRENT_BUILD && make -C "$KSOURCE" LLVM=1 O=$(pwd) rustdoc && xdg-open Documentation/output/rust/rustdoc/kernel/index.html'
+declare -A K_VARIANTS=(
+    ["mainline"]="mainline"
+    ["rust"]="rust"
+)
 
-kmake() {
-    local variant="${1:-rust-next}"
-    local build_dir
+k() {
+    local KSOURCE="${KSOURCE:-$HOME/src/linux}"
+    local KBUILD="${KBUILD:-$HOME/build/linux}"
+    local IMAGE="$KDIR/trixie.img"
+    local MNT="/mnt/trixie"
 
-    case "$variant" in
-        mainline) build_dir="$KBUILD/mainline" ;;
-        rust) build_dir="$KBUILD/rust-next" ;;
-        *)
-            echo "Usage: kmake [mainline|rust]"
-            return 1
-            ;;
-    esac
+    _k_err() { echo "Error: $1" >&2; return 1; }
 
-    # .config should exist in $KBUILD/dir, not $KSOURCE
-    cd "$KSOURCE" && make -C "$KSOURCE" O="$build_dir" menuconfig
-}
+    _k_usage() {
+        cat <<EOF
+Usage: k <command> [arguments]
 
-kbuild() {
-    local build_dir
+Commands:
+  config  <variant>           Run menuconfig for a specific variant
+  build   <variant> [compdb]  Build kernel (optionally generate compile_commands.json)
+  util    <action> <variant>  Run utility actions: clean, mrproper, rust-analyzer
+  modules <variant>           Mount image and install kernel modules
+  rg      [args]              Search source (excludes Documentation/ and tools/)
+  gdb     <variant>           Remote GDB session (target :1234)
+  decode  <variant> < log     Decode stacktrace using variant vmlinux
+  doc     <variant>           Build and open Rust documentation
 
-    case "$1" in
-        mainline) build_dir="$KBUILD/mainline" ;;
-        rust) build_dir="$KBUILD/rust-next" ;;
-        *)
-            echo "Usage: kbuild [mainline|rust] compdb [optional]"
-            return 1
-            ;;
-    esac
-
-    if [[ "$2" == "compdb" ]]; then
-        target="compile_commands.json"
-    else
-        target=""
-    fi
-
-    cd "$KSOURCE" || {
-        echo "Kernel source not found: $KSOURCE"
+Variants: ${!K_VARIANTS[*]}
+EOF
         return 1
     }
 
-    make -j"$(nproc)" O="$build_dir" LLVM=1 CLIPPY=1 ARCH=x86_64 CC="ccache clang" $target W=1
+    [[ ! -d "$KSOURCE" ]] && { _k_err "Source directory not found: $KSOURCE" || return 1; }
 
-    if [[ "$2" == "compdb" ]]; then
-        mv "$build_dir"/compile_commands.json "$KSOURCE"
+    local cmd="$1"
+    local action var opt build_dir
+
+    case "$cmd" in
+        util)
+            action="$2"; var="$3"
+            [[ -z "$action" ]] && { _k_usage || return 1; }
+            ;;
+        config|build|modules|gdb|decode|doc)
+            var="$2"; opt="$3"
+            [[ -z "$var" ]] && { _k_usage || return 1; }
+            ;;
+        rg) ;;
+        *) { _k_usage || return 1; } ;;
+    esac
+
+    if [[ -n "$var" ]]; then
+        [[ -z "${K_VARIANTS[$var]}" ]] && { _k_err "Invalid variant '$var'" || return 1; }
+        build_dir="$KBUILD/${K_VARIANTS[$var]}"
+        if [[ "$cmd" != "config" && ! -d "$build_dir" ]]; then
+            _k_err "Build directory missing: $build_dir. Run 'k config $var' first." || return 1
+        fi
     fi
-}
 
-kutil() {
-    local cmd
+    case "$cmd" in
+        config)
+            mkdir -p "$build_dir"
+            make -C "$KSOURCE" O="$build_dir" menuconfig
+            ;;
 
-    case "$1" in
-        rust-analyzer) cd "$CURRENT_BUILD" && make LLVM=1 CLIPPY=1 rust-analyzer && mv rust-project.json "$KSOURCE" && cd "$KSOURCE";;
-        clean) make O="$CURRENT_BUILD" clean;;
-        mrproper) cd "$KSOURCE" && make ARCH="$(uname -m)" mrproper;;
-        *)
-            echo "Usage: kutil [rust-analyzer | clean | mrproper]"
-            return 1
+        build)
+            local target=""
+            [[ "$opt" == "compdb" ]] && target="compile_commands.json"
+            make -C "$KSOURCE" -j"$(nproc)" O="$build_dir" \
+                LLVM=1 CLIPPY=1 ARCH=x86_64 \
+                CC="ccache clang" W=1 $target || return 1
+            [[ -f "$build_dir/$target" ]] && mv "$build_dir/$target" "$KSOURCE/"
+            ;;
+
+        util)
+            case "$action" in
+                rust-analyzer)
+                    make -C "$KSOURCE" O="$build_dir" LLVM=1 CLIPPY=1 rust-analyzer || return 1
+                    [[ -f "$build_dir/rust-project.json" ]] && mv "$build_dir/rust-project.json" "$KSOURCE/"
+                    ;;
+                clean)
+                    make -C "$KSOURCE" O="$build_dir" clean
+                    ;;
+                mrproper)
+                    make -C "$KSOURCE" ARCH="$(uname -m)" mrproper
+                    ;;
+                *) _k_err "Invalid action '$action'" || return 1 ;;
+            esac
+            ;;
+
+        rg)
+            [[ -z "$2" ]] && { _k_err "Search pattern required" || return 1; }
+            rg -g '!Documentation/' -g '!tools/' "$2" "${@:3}" "$KSOURCE"
+            ;;
+
+        gdb|decode|doc)
+            local vmlinux="$build_dir/vmlinux"
+            [[ ! -f "$vmlinux" ]] && { _k_err "vmlinux not found at $vmlinux" || return 1; }
+
+            case "$cmd" in
+                gdb)    gdb -tui -ex 'target remote :1234' "$vmlinux" ;;
+                decode) "$KSOURCE/scripts/decode_stacktrace.sh" "$vmlinux" "$KSOURCE" ;;
+                doc)    make -C "$KSOURCE" O="$build_dir" LLVM=1 rustdoc && \
+                        xdg-open "$build_dir/Documentation/output/rust/rustdoc/kernel/index.html" ;;
+            esac
+            ;;
+
+        modules)
+            [[ ! -f "$IMAGE" ]] && { _k_err "Image file missing: $IMAGE" || return 1; }
+            sudo mkdir -p "$MNT"
+            sudo mount "$IMAGE" "$MNT" || return 1
+            trap 'sudo umount "$MNT" 2>/dev/null' EXIT
+            sudo make -C "$KSOURCE" O="$build_dir" INSTALL_MOD_PATH="$MNT" modules_install
             ;;
     esac
-}
-
-kinstallmodules() {
-    local variant="${1:-rust-next}"
-    local img="$HOME/Desktop/linux-kernel/trixie.img"
-    local mount_point=/mnt/trixie
-    local build_dir
-
-    case "$variant" in
-        mainline) build_dir="$KBUILD/mainline" ;;
-        rust) build_dir="$KBUILD/rust-next" ;;
-        *)
-            echo "Usage: kinstallmodules [mainline|rust]"
-            return 1
-            ;;
-    esac
-
-    sudo mkdir -p "$mount_point" || return 1
-    sudo mount "$img" "$mount_point" || return 1
-
-    (
-        cd "$build_dir" || {
-            echo "Build directory not found: $build_dir"
-            sudo umount "$mount_point"
-            return 1
-        }
-
-        sudo make INSTALL_MOD_PATH="$mount_point" modules_install
-    )
-
-    sudo umount "$mount_point"
 }
 
 vm() {
