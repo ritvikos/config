@@ -1,0 +1,38 @@
+_k_completion() {
+    local cur prev cmd
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    cmd="${COMP_WORDS[1]}"
+
+    local subcommands="config build util modules rg gdb decode doc"
+    local variants="${!K_VARIANTS[*]}"
+    local utils="clean mrproper rust-analyzer"
+
+    case "$COMP_CWORD" in
+        1)
+            COMPREPLY=( $(compgen -W "$subcommands" -- "$cur") )
+            ;;
+        2)
+            case "$cmd" in
+                config|build|modules|gdb|decode|doc)
+                    COMPREPLY=( $(compgen -W "$variants" -- "$cur") )
+                    ;;
+                util)
+                    COMPREPLY=( $(compgen -W "$utils" -- "$cur") )
+                    ;;
+            esac
+            ;;
+        3)
+            case "$cmd" in
+                build)
+                    COMPREPLY=( $(compgen -W "compdb" -- "$cur") )
+                    ;;
+                util)
+                    # Complete variant after utility action
+                    [[ "$prev" != "mrproper" ]] && COMPREPLY=( $(compgen -W "$variants" -- "$cur") )
+                    ;;
+            esac
+            ;;
+    esac
+}
+complete -F _k_completion k
