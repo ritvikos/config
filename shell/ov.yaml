@@ -1,0 +1,6 @@
+# ~/.config/ov/config.yaml
+
+General:
+  LineNumMode: true
+  WrapMode: true
+  VScrollLines: 8
