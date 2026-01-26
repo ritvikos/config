@@ -1,2 +1,1 @@
-require("default.core")
-require("default.lazy")
+require("ritvikos.init")
