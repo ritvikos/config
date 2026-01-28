@@ -16,15 +16,5 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-  --  {
-  --    "neovim/nvim-lspconfig",
-  --  config = function()
-  --      local servers = { "rust_analyzer", "lua_ls" }
-  --      for _, server in ipairs(servers) do
-  --        vim.lsp.enable(server)
-  --      end
-  --    end,
-  --  },
-
-  { import = "ritvikos.plugins" },
+  spec = { { import = "ritvikos.plugins" } },
 })

@@ -9,12 +9,13 @@ return {
     config = function()
       require("mini.surround").setup({
         mappings = {
-          add = "sa",
-          delete = "sd",
-          find = "sf",
-          find_left = "sF",
-          highlight = "sh",
-          replace = "sr",
+          add = "ms",
+          delete = "md",
+          replace = "mr",
+          find = "mf",
+          find_left = "mF",
+          highligh = "mh",
+          update_n_lines = "mn",
         },
       })
       require("mini.indentscope").setup({
@@ -263,6 +264,79 @@ return {
       })
       vim.diagnostic.config({ virtual_text = false })
     end,
+  },
+
+  -- Statusline
+  {
+    "nvim-lualine/lualine.nvim",
+    config = function()
+      require("lualine").setup({
+        options = {
+          theme = "auto",
+          component_separators = { left = "|", right = "|" },
+          section_separators = { left = "", right = "" },
+          globalstatus = true,
+        },
+        sections = {
+          -- LEFT
+          lualine_a = { "mode" },
+          lualine_b = { "branch", "diff" },
+          lualine_c = { { "filename", file_status = true, path = 1 } },
+          lualine_x = {
+            {
+              "diagnostics",
+              sources = { "nvim_diagnostic" },
+              symbols = { error = "E:", warn = "W:", info = "I:", hint = "H:" },
+            },
+          },
+          lualine_y = { "encoding", "filetype" },
+          lualine_z = { "location", "progress" },
+        },
+      })
+    end,
+  },
+
+  -- Hints
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    opts = {
+      preset = "helix",
+      delay = 0,
+      icons = {
+        mappings = false,
+        keys = {
+          Alt = "M-",
+          Control = "C-",
+          Shift = "S-",
+        },
+      },
+      win = {
+        border = "rounded",
+        padding = { 1, 2 },
+      },
+      spec = {
+        -- Core Groups
+        { "<leader>f", group = "find/format" },
+        { "<leader>h", group = "git-hunk" },
+        { "<leader>d", group = "diagnostics" },
+        { "g", group = "goto" },
+        { "m", group = "match/surround" },
+
+        -- Window Management
+        { "<M-;>", desc = "Focus Right" },
+        { "<M-h>", desc = "Split Horizontal" },
+        { "<M-j>", desc = "Focus Left" },
+        { "<M-k>", desc = "Focus Up" },
+        { "<M-l>", desc = "Focus Down" },
+        { "<M-v>", desc = "Split Vertical" },
+
+        -- Bulk Selection
+        { "<M-a>", desc = "Select All" },
+        { "<M-n>", desc = "Select to Bottom" },
+        { "<M-p>", desc = "Select to Top" },
+      },
+    },
   },
 
   -- Theme
