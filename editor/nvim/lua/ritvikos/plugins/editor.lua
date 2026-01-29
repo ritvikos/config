@@ -339,6 +339,52 @@ return {
     },
   },
 
+  -- Call Tree
+  {
+    "jmacadie/telescope-hierarchy.nvim",
+    dependencies = {
+      {
+        "nvim-telescope/telescope.nvim",
+        dependencies = { "nvim-lua/plenary.nvim" },
+      },
+    },
+    keys = {
+      {
+        "<leader>gi",
+        "<cmd>Telescope hierarchy incoming_calls<cr>",
+        desc = "LSP: [S]earch [I]ncoming Calls",
+      },
+      {
+        "<leader>go",
+        "<cmd>Telescope hierarchy outgoing_calls<cr>",
+        desc = "LSP: [S]earch [O]utgoing Calls",
+      },
+    },
+    opts = {
+      extensions = {
+        hierarchy = {
+          initial_multi_expand = false,
+          multi_depth = 3, -- Expands 'multi_depth' layers deep (key: 'E')
+        },
+      },
+    },
+    config = function(_, opts)
+      require("telescope").setup(opts)
+      require("telescope").load_extension("hierarchy")
+    end,
+  },
+
+  {
+    "rmagatti/goto-preview",
+    --dependencies = { "rmagatti/logger.nvim" },
+    event = "BufEnter",
+    config = true,
+
+    opts = {
+      default_mappings = true,
+    },
+  },
+
   -- Theme
   {
     "projekt0n/github-nvim-theme",

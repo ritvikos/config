@@ -14,7 +14,6 @@ return {
     },
 
     opts = function()
-      local fzf = require("fzf-lua")
       return {
         "default-title",
         winopts = {

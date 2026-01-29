@@ -1,29 +1,16 @@
+-- Install Tree-sitter-cli: `cargo install --locked tree-sitter-cli`
+-- TSInstall <lang>
+
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    lazy = false,
+    ensure_installed = { "go", "rust", "c", "python", "bash", "markdown", "json", "toml" },
     build = ":TSUpdate",
-    config = function()
-      require("nvim-treesitter").setup({
-        install_dir = vim.fn.stdpath("data") .. "/site",
-      })
-
-      require("nvim-treesitter").install({
-        "lua",
-        "rust",
-        "go",
-        "json",
-        "python",
-        "markdown",
-      })
-
-      vim.api.nvim_create_autocmd("FileType", {
-        callback = function()
-          if pcall(vim.treesitter.get_parser, 0, vim.bo.filetype) then
-            vim.treesitter.start()
-          end
-        end,
-      })
-    end,
+    opts = {
+      auto_install = true,
+      highlight = {
+        enable = true,
+      },
+    },
   },
 }
