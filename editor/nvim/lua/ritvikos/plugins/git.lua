@@ -39,4 +39,13 @@ return {
       end,
     },
   },
+
+  -- Add Git Status to 'oil.nvim' directory listings
+  {
+    "refractalize/oil-git-status.nvim",
+    dependencies = {
+      "stevearc/oil.nvim",
+    },
+    config = true,
+  },
 }

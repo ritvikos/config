@@ -40,6 +40,7 @@ return {
   },
 
   -- FS Tree
+  -- ref: plugins/git: refractalize/oil-git-status.nvim
   {
     "stevearc/oil.nvim",
     lazy = false,
@@ -51,6 +52,9 @@ return {
     opts = {
       default_file_explorer = true,
       delete_to_trash = true,
+      win_options = {
+        signcolumn = "yes:2", -- for 'plugins/git/oil-git-status'
+      },
       view_options = {
         show_hidden = true,
         is_always_hidden = function(name, _)
