@@ -4,8 +4,8 @@ vim.keymap.set("n", "U", "<C-r>", { desc = "Redo" })
 
 -- Movements
 vim.keymap.set({ "n", "v" }, "j", "h", { desc = "Move cursor left" })
-vim.keymap.set({ "n", "v" }, "k", "k", { desc = "Move cursor up" })
-vim.keymap.set({ "n", "v" }, "l", "j", { desc = "Move cursor down" })
+vim.keymap.set({ "n", "v" }, "k", "gk", { desc = "Move cursor up" })
+vim.keymap.set({ "n", "v" }, "l", "gj", { desc = "Move cursor down" })
 vim.keymap.set({ "n", "v" }, ";", "l", { desc = "Move cursor right" })
 
 -- Modes

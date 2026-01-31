@@ -26,3 +26,8 @@ vim.opt.shortmess:append("Ic")
 vim.opt.whichwrap:append("<,>,h,l,[,]")
 vim.opt.backspace = "indent,eol,start"
 vim.opt.background = "dark"
+
+vim.opt.wrap = true
+vim.opt.linebreak = true
+vim.opt.breakindent = true
+vim.opt.showbreak = ">-> "
