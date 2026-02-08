@@ -2,7 +2,6 @@ return {
   cmd = {
     "clangd",
     "--background-index",
-    "--compile-commands-dir=./",
     "--completion-style=detailed",
     "--clang-tidy",
     "--header-insertion=never",
