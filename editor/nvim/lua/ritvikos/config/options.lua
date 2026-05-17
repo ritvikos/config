@@ -31,3 +31,5 @@ vim.opt.wrap = true
 vim.opt.linebreak = true
 vim.opt.breakindent = true
 vim.opt.showbreak = ">-> "
+
+vim.lsp.inlay_hint.enable(true)

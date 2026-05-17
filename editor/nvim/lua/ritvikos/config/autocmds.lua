@@ -29,3 +29,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
     map("gr", vim.lsp.buf.references, "Go to References")
   end,
 })
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*.py",
+  callback = function()
+    vim.lsp.buf.code_action({ context = { only = { "source.fixAll.ruff" } }, apply = true })
+  end,
+})
